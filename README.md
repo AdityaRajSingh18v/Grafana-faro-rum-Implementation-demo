@@ -537,8 +537,8 @@ It uses HTTP endpoints, single-instance Loki, and local filesystem storage. A pr
 
 ### Overview: User Activity, Errors, and Browser Performance
 
-![alt text](<Screenshot 2026-11-26 at 5.12.45 PM.png>)
+![Grafana](./screenshots/grafana-overview.png)
 
 ### Details: User Events and Checkout Errors
 
-![alt text](<Screenshot 2026-11-26 at 5.13.08 PM.png>)
+![Grafana2](./screenshots/grafana-details.png)
