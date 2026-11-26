@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RUM Shopping Demo</title>
+  <script src="/faro.js"></script>
+  <script>
+    window.demoFaro = window.GrafanaFaroWebSdk.initializeFaro({
+      url: 'http://' + window.location.hostname + ':12347/collect',
+      app: {
+        name: 'rum-demo',
+        version: '1.0.0',
+        environment: 'demo'
+      },
+      instrumentations: [
+        ...window.GrafanaFaroWebSdk.getWebInstrumentations()
+      ]
+    });
+  </script>
+  <style>
+    body {
+      margin: 0;
+      background: #101827;
+      color: #edf2fa;
+      font: 18px system-ui, sans-serif;
+    }
+    main { max-width: 800px; margin: 70px auto; padding: 24px; }
+    h1 { font-size: 42px; }
+    .card {
+      background: #1d293d;
+      padding: 32px;
+      border: 1px solid #384860;
+      border-radius: 18px;
+    }
+    .price { font-size: 30px; color: #66dfbb; }
+    button {
+      padding: 14px 20px;
+      margin: 8px 8px 8px 0;
+      border: 0;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #cart { background: #66dfbb; }
+    #error { background: #ff9d9d; }
+    #slow { background: #ffd783; }
+    #status { min-height: 28px; }
+    small { color: #b8c6db; }
+  </style>
+</head>
+<body>
+  <main>
+    <small>OBSERVABILITY LAB · GRAFANA FARO</small>
+    <h1>RUM Shopping Demo</h1>
+    <p>Observe browser performance, user events and JavaScript errors.</p>
+
+    <section class="card">
+      <h2>Wireless Headphones</h2>
+      <p>Demo product for our shopping application.</p>
+      <p class="price">₹1,999</p>
+      <p>Cart items: <strong id="count">0</strong></p>
+      <button id="cart">Add to Cart</button>
+      <button id="error">Generate Error</button>
+      <button id="slow">Slow Interaction</button>
+      <p id="status" aria-live="polite">Ready for the demo.</p>
+    </section>
+
+    <p><small>Generate Error and Slow Interaction intentionally simulate problems.</small></p>
+  </main>
+
+  <script>
+    let cartCount = 0;
+    const status = document.getElementById('status');
+
+    document.getElementById('cart').addEventListener('click', () => {
+      cartCount++;
+      document.getElementById('count').textContent = cartCount;
+      status.textContent = 'Product added to cart.';
+
+      window.demoFaro.api.pushEvent('add_to_cart', {
+        product: 'wireless-headphones',
+        quantity: String(cartCount)
+      });
+    });
+
+    document.getElementById('error').addEventListener('click', () => {
+      status.textContent = 'Intentional JavaScript error triggered.';
+      throw new Error('Demo checkout failed: payment service unavailable');
+    });
+
+    document.getElementById('slow').addEventListener('click', () => {
+      const start = performance.now();
+      while (performance.now() - start < 700) {
+        // Intentionally block the browser main thread for this demo.
+      }
+      status.textContent = 'Slow interaction completed after about 700 ms.';
+      window.demoFaro.api.pushEvent('slow_interaction', {
+        simulated_delay_ms: '700'
+      });
+    });
+  </script>
+</body>
+</html>
